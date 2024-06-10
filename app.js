@@ -7,14 +7,8 @@ const { expressjwt: expressjwt } = require("express-jwt");
 const timeOut = 60000;
 const v4 = require('uuid').v4;
 const knex = require('knex')({
-  client: 'mysql',
-  connection: {
-    host: 'localhost',
-    port: '3306',
-    user: 'root',
-    password: 'password',
-    database: 'test'
-  }
+  client: 'pg',
+  connection: 'postgres://postgres:123456@localhost:5432/postgres',
 });
 
 
@@ -79,8 +73,8 @@ app.get('/protected/member', (req, res) => {
 
 app.post('/user/create', (req, res) => {
   let payload = {};
-  payload.firstName = req.body.lastName;
-  payload.lastName = req.body.firstName;
+  payload.firstname = req.body.lastName;
+  payload.lastname = req.body.firstName;
   payload.id = v4();
   knex('customer').insert(payload).then(data => {
     res.status(201).send({ message: 'User created successfully', id: payload.id });
@@ -88,7 +82,10 @@ app.post('/user/create', (req, res) => {
 });
 
 app.put('/user/update', (req, res) => {
-  let payload = req.body;
+  let payload = {};
+  payload.firstname = req.body.lastName;
+  payload.lastname = req.body.firstName;
+  payload.id = req.body.id;
   // knex('customer').where('id', req.body.id).update(payload).then(data => {
   //   res.status(200).send({ message: 'User updated successfully' });
   // });
