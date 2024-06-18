@@ -1,9 +1,12 @@
 const express = require('express');
+const axios = require('axios');
 const app = express();
 const port = 3000;
 const jwt = require('jsonwebtoken');
 const secret = 'Z34mmvdcmQX9d2oNALG7fmy2Xy4RJ+BdYtRnbkRyjrBf';
 const { expressjwt: expressjwt } = require("express-jwt");
+const { host } = require('pg/lib/defaults');
+const path = require('node:path');
 const timeOut = 60000;
 const v4 = require('uuid').v4;
 const knex = require('knex')({
@@ -20,10 +23,10 @@ app.use(expressjwt({
 }).unless({ path: ['/', '/login'] }));
 
 app.get('/', (req, res) => {
-  knex.select('*').from('customer').then(data => {
-    res.send(data);
-  });
-  // res.send('Hello World!');
+  // knex.select('*').from('customer').then(data => {
+  //   res.send(data);
+  // });
+  res.send('Hello World!');
 })
 
 app.post('/login', (req, res) => {
@@ -97,6 +100,22 @@ app.delete('/user/delete/:id', (req, res) => {
   //   res.status(200).send({ message: 'User deleted successfully' });
   // });
   res.status(200).send({ message: 'User deleted successfully' });
+});
+
+app.post('/user/create/from/third/party', (req, res) => {
+  let payload = {};
+  payload.fullName = req.body.lastName + " " + req.body.firstName;
+  payload.id = v4();
+  console.log(payload);
+  axios.post("http://localhost:4545/user/create", payload,{
+    headers: {
+      'x-api-key': '123'
+    }
+  }).then(response => {
+    res.status(201).send({ message: 'User created successfully', id: payload.id });
+  }).catch(error => {
+    res.status(500).send({ message: 'Error creating user' });
+  });
 });
 
 app.listen(port, () => {
